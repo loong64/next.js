@@ -43,7 +43,7 @@ const cwd = process.cwd()
           const child = execa(
             `npm`,
             [
-              `publish`,
+              `pack`,
               `${path.join(nativePackagesDir, platform)}`,
               `--access`,
               `public`,
@@ -101,7 +101,7 @@ const cwd = process.cwd()
           await execa(
             `npm`,
             [
-              'publish',
+              'pack',
               `${path.join(wasmDir, `pkg-${wasmTarget}`)}`,
               '--access',
               'public',

@@ -278,6 +278,30 @@ function requireNative() {
           loadErrors.push(e)
         }
       }
+    } else if (process.arch === 'loong64') {
+      if (isMusl()) {
+        try {
+          return require('./binding.linux-loong64-musl.node')
+        } catch (e) {
+          loadErrors.push(e)
+        }
+        try {
+          return require('@next/rspack-binding-linux-loong64-musl')
+        } catch (e) {
+          loadErrors.push(e)
+        }
+      } else {
+        try {
+          return require('./binding.linux-loong64-gnu.node')
+        } catch (e) {
+          loadErrors.push(e)
+        }
+        try {
+          return require('@next/rspack-binding-linux-loong64-gnu')
+        } catch (e) {
+          loadErrors.push(e)
+        }
+      }
     } else if (process.arch === 'riscv64') {
       if (isMusl()) {
         try {

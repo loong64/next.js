@@ -27,13 +27,8 @@
     "triples": {
       "defaults": true,
       "additional": [
-        "i686-pc-windows-msvc",
-        "aarch64-unknown-linux-gnu",
-        "aarch64-apple-darwin",
-        "x86_64-unknown-linux-musl",
-        "aarch64-unknown-linux-musl",
-        "aarch64-pc-windows-msvc",
-        "wasm32-wasip1-threads"
+        "loongarch64-unknown-linux-gnu",
+        "loongarch64-unknown-linux-musl"
       ]
     }
   },

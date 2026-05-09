@@ -69,6 +69,22 @@ function infoLog(...args: any[]) {
  * Based on napi-rs's target triples, returns triples that have corresponding next-swc binaries.
  */
 export function getSupportedArchTriples(): Record<string, any> {
+  (platformArchTriples.linux as any).loong64 = [
+    {
+      platform: 'linux',
+      arch: 'loong64',
+      abi: 'musl',
+      platformArchABI: 'linux-loong64-musl',
+      raw: 'loongarch64-unknown-linux-musl',
+    },
+    {
+      platform: 'linux',
+      arch: 'loong64',
+      abi: 'gnu',
+      platformArchABI: 'linux-loong64-gnu',
+      raw: 'loongarch64-unknown-linux-gnu',
+    },
+  ];
   const { darwin, win32, linux, freebsd, android } = platformArchTriples
 
   return {
@@ -82,6 +98,7 @@ export function getSupportedArchTriples(): Record<string, any> {
       // linux[x64] includes `gnux32` abi, with x64 arch.
       x64: linux.x64.filter((triple) => triple.abi !== 'gnux32'),
       arm64: linux.arm64,
+      loong64: linux.loong64,
       // This target is being deprecated, however we keep it in `knownDefaultWasmFallbackTriples` for now
       arm: linux.arm,
     },

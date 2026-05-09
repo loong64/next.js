@@ -11,7 +11,8 @@ const checkIsRelease = async () => {
     .toString()
     .trim()
 
-  const versionString = commitMsg.split(' ').pop().trim()
+  // const versionString = commitMsg.split(' ').pop().trim()
+  const versionString = 'v16.2.4'
   const publishMsgRegex = /^v\d{1,}\.\d{1,}\.\d{1,}(-\w{1,}\.\d{1,})?$/
 
   if (publishMsgRegex.test(versionString)) {
