@@ -14,12 +14,14 @@ export type SWC_TARGET_TRIPLE =
   | 'i686-pc-windows-msvc'
   | 'aarch64-unknown-linux-gnu'
   | 'armv7-unknown-linux-gnueabihf'
+  | 'loongarch64-unknown-linux-gnu'
   | 'aarch64-apple-darwin'
   | 'aarch64-linux-android'
   | 'arm-linux-androideabi'
   | 'x86_64-unknown-freebsd'
   | 'x86_64-unknown-linux-musl'
   | 'aarch64-unknown-linux-musl'
+  | 'loongarch64-unknown-linux-musl'
   | 'aarch64-pc-windows-msvc'
 
 export type Feature =
@@ -92,12 +94,14 @@ const BUILD_FEATURES: Array<Feature> = [
   'swc/target/i686-pc-windows-msvc',
   'swc/target/aarch64-unknown-linux-gnu',
   'swc/target/armv7-unknown-linux-gnueabihf',
+  'swc/target/loongarch64-unknown-linux-gnu',
   'swc/target/aarch64-apple-darwin',
   'swc/target/aarch64-linux-android',
   'swc/target/arm-linux-androideabi',
   'swc/target/x86_64-unknown-freebsd',
   'swc/target/x86_64-unknown-linux-musl',
   'swc/target/aarch64-unknown-linux-musl',
+  'swc/target/loongarch64-unknown-linux-musl',
   'swc/target/aarch64-pc-windows-msvc',
   'turbotrace',
   'transpilePackages',

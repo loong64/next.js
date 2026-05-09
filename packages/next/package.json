@@ -160,7 +160,7 @@
     "@jest/types": "29.5.0",
     "@modelcontextprotocol/sdk": "1.18.1",
     "@mswjs/interceptors": "0.23.0",
-    "@napi-rs/triples": "1.2.0",
+    "@napi-rs/triples": "https://github.com/loong64/napi-rs/releases/download/triples-2.1.9/napi-rs-triples-2.1.9.tgz",
     "@next/font": "16.2.5",
     "@next/polyfill-module": "16.2.5",
     "@next/polyfill-nomodule": "16.2.5",

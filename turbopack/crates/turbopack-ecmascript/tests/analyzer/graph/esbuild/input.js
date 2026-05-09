@@ -15,6 +15,7 @@ var knownUnixlikePackages = {
   "freebsd x64 LE": "esbuild-freebsd-64",
   "linux arm LE": "esbuild-linux-arm",
   "linux arm64 LE": "esbuild-linux-arm64",
+  "linux loong64 LE": "esbuild-linux-loong64",
   "linux ia32 LE": "esbuild-linux-32",
   "linux mips64el LE": "esbuild-linux-mips64le",
   "linux ppc64 LE": "esbuild-linux-ppc64le",

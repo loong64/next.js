@@ -58,6 +58,18 @@ rustflags = [
   "-Clink-arg=-lgcc",
 ]
 
+[target.loongarch64-unknown-linux-musl]
+linker = "loongarch64-linux-musl-gcc"
+# Config need to be mirrowed to .github/workflows/build_and_deploy.yml
+rustflags = [
+  "--cfg",
+  "tokio_unstable",
+  "-Zshare-generics=y",
+  "-Csymbol-mangling-version=v0",
+  "-Ctarget-feature=-crt-static",
+  "-Clink-arg=-lgcc",
+]
+
 [target.x86_64-unknown-linux-musl]
 # Config need to be mirrowed to .github/workflows/build_and_deploy.yml
 rustflags = [

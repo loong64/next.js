@@ -1216,8 +1216,8 @@ importers:
         specifier: 0.23.0
         version: 0.23.0
       '@napi-rs/triples':
-        specifier: 1.2.0
-        version: 1.2.0
+        specifier: https://github.com/loong64/napi-rs/releases/download/triples-2.1.9/napi-rs-triples-2.1.9.tgz
+        version: https://github.com/loong64/napi-rs/releases/download/triples-2.1.9/napi-rs-triples-2.1.9.tgz
       '@next/font':
         specifier: 16.2.5
         version: link:../font
@@ -4452,8 +4452,9 @@ packages:
     engines: {node: '>= 10'}
     hasBin: true
 
-  '@napi-rs/triples@1.2.0':
-    resolution: {integrity: sha512-HAPjR3bnCsdXBsATpDIP5WCrw0JcACwhhrwIAQhiR46n+jm+a2F8kBsfseAuWtSyQ+H3Yebt2k43B5dy+04yMA==}
+  '@napi-rs/triples@https://github.com/loong64/napi-rs/releases/download/triples-2.1.9/napi-rs-triples-2.1.9.tgz':
+    resolution: {tarball: https://github.com/loong64/napi-rs/releases/download/triples-2.1.9/napi-rs-triples-2.1.9.tgz}
+    version: 2.1.9
 
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
@@ -21914,7 +21915,7 @@ snapshots:
 
   '@napi-rs/cli@2.18.4': {}
 
-  '@napi-rs/triples@1.2.0': {}
+  '@napi-rs/triples@https://github.com/loong64/napi-rs/releases/download/triples-2.1.9/napi-rs-triples-2.1.9.tgz': {}
 
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:

@@ -562,6 +562,22 @@
                     Constant(
                         Str(
                             Atom(
+                                "linux loong64 LE",
+                            ),
+                        ),
+                    ),
+                    Constant(
+                        Str(
+                            Atom(
+                                "esbuild-linux-loong64",
+                            ),
+                        ),
+                    ),
+                ),
+                KeyValue(
+                    Constant(
+                        Str(
+                            Atom(
                                 "linux mips64el LE",
                             ),
                         ),

@@ -50,6 +50,8 @@ import fsp from 'fs/promises'
         '@next/swc-darwin-x64': nextVersion,
         '@next/swc-linux-arm64-gnu': nextVersion,
         '@next/swc-linux-arm64-musl': nextVersion,
+        '@next/swc-linux-loong64-gnu': nextVersion,
+        '@next/swc-linux-loong64-musl': nextVersion,
         '@next/swc-linux-x64-gnu': nextVersion,
         '@next/swc-linux-x64-musl': nextVersion,
         '@next/swc-win32-arm64-msvc': nextVersion,
