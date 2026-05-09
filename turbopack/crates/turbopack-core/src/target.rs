@@ -99,6 +99,10 @@ impl CompileTarget {
         {
             return Arch::Arm64;
         }
+        #[cfg(target_arch = "loongarch64")]
+        {
+            return Arch::Loong64;
+        }
         #[cfg(target_arch = "mips")]
         {
             return Arch::Mips;
@@ -180,6 +184,7 @@ pub enum Arch {
     Arm,
     Arm64,
     Ia32,
+    Loong64,
     Mips,
     Mipsel,
     Ppc,
@@ -196,6 +201,7 @@ impl Arch {
             Self::Arm => "arm",
             Self::Arm64 => "arm64",
             Self::Ia32 => "ia32",
+            Self::Loong64 => "loong64",
             Self::Mips => "mips",
             Self::Mipsel => "mipsel",
             Self::Ppc => "ppc",

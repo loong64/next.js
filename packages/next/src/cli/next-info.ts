@@ -391,6 +391,22 @@ async function printVerboseInfo() {
 
           const { platformArchTriples } =
             require('next/dist/compiled/@napi-rs/triples') as typeof import('next/dist/compiled/@napi-rs/triples')
+          (platformArchTriples.linux as any).loong64 = [
+            {
+              platform: 'linux',
+              arch: 'loong64',
+              abi: 'musl',
+              platformArchABI: 'linux-loong64-musl',
+              raw: 'loongarch64-unknown-linux-musl',
+            },
+            {
+              platform: 'linux',
+              arch: 'loong64',
+              abi: 'gnu',
+              platformArchABI: 'linux-loong64-gnu',
+              raw: 'loongarch64-unknown-linux-gnu',
+            },
+          ];
           const triples = platformArchTriples[currentPlatform]?.[os.arch()]
 
           if (!triples || triples.length === 0) {

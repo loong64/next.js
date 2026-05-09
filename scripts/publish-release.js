@@ -86,7 +86,7 @@ const cwd = process.cwd()
       const child = execa(
         `npm`,
         [
-          'publish',
+          'pack',
           `${path.join(packagesDir, pkg)}`,
           '--access',
           'public',
