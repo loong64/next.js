@@ -8,6 +8,8 @@ on:
         description: 'Version to build'
         required: false
         default: ''
+  schedule:
+    - cron: '0 10 * * *'
 
 env:
   NAPI_CLI_VERSION: 2.18.4
