@@ -1,0 +1,336 @@
+# Update all mentions of this name in vercel-packages when changing.
+name: build-and-deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build'
+        required: false
+        default: ''
+
+env:
+  NAPI_CLI_VERSION: 2.18.4
+  NODE_LTS_VERSION: 20
+
+jobs:
+  check:
+    runs-on: ubuntu-slim
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+      build: ${{ steps.check-build.outputs.build }}
+    steps:
+      - name: Check Version
+        id: get-version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            version="${{ inputs.version }}"
+          else
+            version=$(curl -s https://api.github.com/repos/vercel/next.js/releases/latest | jq -r ".tag_name")
+          fi
+          echo "Current Version: ${version}"
+          if [ -z "${version}" ] || [ "${version}" == "null" ]; then
+            echo "Failed to get version"
+            exit 1
+          fi
+          echo "version=${version}" >> $GITHUB_ENV
+          echo "version=${version}" >> $GITHUB_OUTPUT
+
+      - name: Check Build
+        id: check-build
+        run: |
+          gh release view ${version} -R ${{ github.repository }} >/dev/null 2>&1 || echo "build=1" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    runs-on: ubuntu-latest
+    needs:
+      - check
+    if: needs.check.outputs.build == '1'
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+      # we build a dev binary for use in CI so skip downloading
+      # canary next-swc binaries in the monorepo
+      NEXT_SKIP_NATIVE_POSTINSTALL: 1
+      version: ${{ needs.check.outputs.version }}
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_LTS_VERSION }}
+          check-latest: true
+      - name: Setup corepack
+        run: |
+          npm i -g corepack@0.31
+          corepack enable
+
+      - uses: actions/checkout@v6
+        with:
+          repository: vercel/next.js
+          ref: ${{ env.version }}
+
+      - id: get-store-path
+        run: echo STORE_PATH=$(pnpm store path) >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v4
+        timeout-minutes: 5
+        id: cache-pnpm-store
+        with:
+          path: ${{ steps.get-store-path.outputs.STORE_PATH }}
+          key: pnpm-store-v2-${{ hashFiles('pnpm-lock.yaml') }}
+          # Do not use restore-keys since it leads to indefinite growth of the cache.
+
+      - name: Prepare build
+        run: |
+          wget -qO - https://github.com/${{ github.repository }}/raw/refs/heads/main/patch_loong64.patch | patch -p1
+          sed -i "s/commitMsg.split(' ').pop().trim()/'${{ env.version }}'/g" scripts/check-is-release.js
+
+      - run: pnpm install
+
+      - run: pnpm run build
+
+      - uses: actions/cache@v4
+        timeout-minutes: 5
+        id: cache-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt}}
+
+  # Build binaries for publishing
+  build-native:
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - host: 'ubuntu-latest'
+            target: 'loongarch64-unknown-linux-gnu'
+            docker: ghcr.io/loong64/napi-rs/nodejs-rust:lts-debian
+            build: |
+              # /build is bind-mounted from the host with a uid that differs from the
+              # container's root user; mark it safe so vergen's `git rev-parse` works.
+              git config --global --add safe.directory /build
+              rm /usr/share/keyrings/nodesource.gpg
+              curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
+                | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg
+              sed -i 's/jammy/nodistro/g' /etc/apt/sources.list.d/nodesource.list
+              apt update
+              apt install -y pkg-config xz-utils dav1d libdav1d-dev
+              export JEMALLOC_SYS_WITH_LG_PAGE=16
+              rustup show
+              rustup target add loongarch64-unknown-linux-gnu
+              npm i -g "@napi-rs/cli@${NAPI_CLI_VERSION}"
+              export CC_loongarch64_unknown_linux_gnu=/usr/bin/clang
+              export CFLAGS_loongarch64_unknown_linux_gnu="--target=loongarch64-unknown-linux-gnu --sysroot=/usr/loongarch64-unknown-linux-gnu"
+              cd packages/next-swc
+              npm run build-native-release -- --target loongarch64-unknown-linux-gnu
+              llvm-strip -x native/next-swc.*.node
+              objdump -T native/next-swc.*.node | grep GLIBC_
+
+          - host: 'ubuntu-latest'
+            target: 'loongarch64-unknown-linux-musl'
+            docker: ghcr.io/loong64/napi-rs/nodejs-rust:lts-alpine
+            build: |
+              # /build is bind-mounted from the host with a uid that differs from the
+              # container's root user; mark it safe so vergen's `git rev-parse` works.
+              git config --global --add safe.directory /build
+              apk update
+              apk del llvm
+              apk add --no-cache libc6-compat pkgconfig dav1d libdav1d dav1d-dev clang20-static llvm20 llvm20-dev
+              export PATH="/usr/lib/llvm20/bin:$PATH"
+              export JEMALLOC_SYS_WITH_LG_PAGE=16
+              npm i -g "@napi-rs/cli@${NAPI_CLI_VERSION}"
+              rustup show
+              rustup target add loongarch64-unknown-linux-musl
+              export RUSTFLAGS='--cfg tokio_unstable -Zshare-generics=y -Zthreads=8 -Zunstable-options -Csymbol-mangling-version=v0 -Clinker-flavor=gnu-lld-cc -Clink-self-contained=+linker'
+              cd packages/next-swc
+              npm run build-native-release -- --target loongarch64-unknown-linux-musl
+              llvm-strip -x native/next-swc.*.node
+
+    name: stable - ${{ matrix.settings.target }} - node@20
+    runs-on: ${{ matrix.settings.host }}
+    needs:
+      - check
+    if: needs.check.outputs.build == '1'
+    env:
+      version: ${{ needs.check.outputs.version }}
+    steps:
+      # https://github.com/actions/virtual-environments/issues/1187
+      - name: tune linux network
+        run: sudo ethtool -K eth0 tx off rx off
+        if: ${{ matrix.settings.host == 'ubuntu-latest' }}
+      - uses: actions/checkout@v6
+        with:
+          repository: vercel/next.js
+          ref: ${{ env.version }}
+
+      - name: Setup node
+        uses: actions/setup-node@v6
+        if: ${{ !matrix.settings.docker }}
+        with:
+          node-version: ${{ env.NODE_LTS_VERSION }}
+          check-latest: true
+
+      - name: Cache cargo
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo
+          key: ${{ runner.os }}-${{ matrix.settings.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Prepare corepack
+        if: ${{ matrix.settings.host != 'windows-latest-8-core-oss' }}
+        run: npm i -g corepack@0.31
+
+      - name: Setup corepack
+        run: corepack enable
+
+      # we always want to run this to set environment variables
+      - name: Install Rust
+        uses: ./.github/actions/setup-rust
+        with:
+          targets: ${{ matrix.settings.target }}
+
+      - name: normalize versions
+        run: node scripts/normalize-version-bump.js
+
+      - name: Setup toolchain
+        run: ${{ matrix.settings.setup }}
+        if: ${{ matrix.settings.setup }}
+
+      - name: Prepare build
+        if: contains(matrix.settings.target, 'loongarch64')
+        run: |
+          wget -qO - https://github.com/${{ github.repository }}/raw/refs/heads/main/patch_loong64.patch | patch -p1
+          echo 'cty = { git = "https://github.com/loong64/cty", branch = "loong64-v0.2.2" }' >> Cargo.toml
+          cargo update -p cty
+
+      - name: check build exists
+        if: ${{ matrix.settings.docker }}
+        run: if [ -f packages/next-swc/native/next-swc.*.node ]; then echo "BUILD_EXISTS=yes" >> $GITHUB_OUTPUT; else echo "BUILD_EXISTS=no" >> $GITHUB_OUTPUT; fi
+        id: build-exists
+
+      - name: Build in docker
+        if: ${{ matrix.settings.docker && steps.build-exists.outputs.BUILD_EXISTS == 'no' }}
+        env:
+          # put the command in an environment variable to avoid escaping issues
+          DOCKER_CMD: ${{ matrix.settings.build }}
+        run: |
+          docker run --rm -v "/var/run/docker.sock":"/var/run/docker.sock" \
+            -e CI -e RUST_BACKTRACE -e NAPI_CLI_VERSION -e CARGO_TERM_COLOR -e CARGO_INCREMENTAL \
+            -e CARGO_PROFILE_RELEASE_LTO -e CARGO_REGISTRIES_CRATES_IO_PROTOCOL \
+            -v ${{ env.HOME }}/.cargo/git:/root/.cargo/git \
+            -v ${{ env.HOME }}/.cargo/registry:/root/.cargo/registry \
+            -v ${{ github.workspace }}:/build \
+            -w /build \
+            --entrypoint=bash \
+            ${{ matrix.settings.docker }} \
+            -xeo pipefail -c "$DOCKER_CMD" # these args are passed to the entrypoint (bash)
+
+      - name: 'Build'
+        run: ${{ matrix.settings.build }}
+        if: ${{ !matrix.settings.docker }}
+
+      - name: Rename artifacts
+        if: contains(matrix.settings.target, 'loongarch64')
+        run: |
+          cd packages/next-swc/native
+          for file in *.node; do
+            new_file=$(echo "$file" | sed 's/loongarch64/loong64/')
+            sudo mv "$file" "$new_file"
+
+      - name: Upload swc artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-swc-binaries-${{ matrix.settings.target }}
+          path: packages/next-swc/native/next-swc.*.node
+
+      - name: Upload turbo summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: turbo-run-summary-${{ matrix.settings.target }}
+          path: .turbo/runs
+
+  publishRelease:
+    name: Potentially publish release
+    runs-on: ubuntu-latest
+    # environment: ${{ needs.deploy-target.outputs.release_environment }}
+    needs:
+      - check
+      - build
+      - build-native
+    permissions:
+      contents: write
+      id-token: write
+    if: needs.check.outputs.build == '1'
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
+      version: ${{ needs.check.outputs.version }}
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          check-latest: true
+          registry-url: 'https://registry.npmjs.org'
+      - name: Setup corepack
+        run: |
+          npm i -g corepack@0.31
+          corepack enable
+
+      # https://github.com/actions/virtual-environments/issues/1187
+      - name: tune linux network
+        run: sudo ethtool -K eth0 tx off rx off
+
+      - uses: actions/cache@v4
+        timeout-minutes: 5
+        id: restore-build
+        with:
+          path: ./*
+          # Cache includes repo checkout which is required for later scripts
+          fail-on-cache-miss: true
+          key: ${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt }}
+          restore-keys: |
+            ${{ github.sha }}-${{ github.run_number }}
+            ${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt}}
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: next-swc-binaries-*
+          merge-multiple: true
+          path: packages/next-swc/native
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wasm-binaries-*
+          merge-multiple: true
+          path: crates/wasm
+
+      - name: List binaries
+        run: ls -R packages/next-swc/native
+
+      - run: ./scripts/publish-native.js || true
+      - run: ./scripts/publish-release.js || true
+        env:
+          RELEASE_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Make artifacts
+        run: |
+          mkdir -p release-assets
+          find . -path "./node_modules" -prune -o -name "*.tgz" -type f -exec mv {} release-assets/ \;
+          ls -lh release-assets/
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="${{ inputs.version }}"
+          gh release create "${TAG_NAME}" \
+            --repo ${{ github.repository }} \
+            --generate-notes \
+            --title "${TAG_NAME}" \
+            release-assets/*
