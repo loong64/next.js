@@ -1,5 +1,5 @@
 diff --git a/.cargo/config.toml b/.cargo/config.toml
-index a20e20d297..1379d22f15 100644
+index a20e20d2..1379d22f 100644
 --- a/.cargo/config.toml
 +++ b/.cargo/config.toml
 @@ -58,6 +58,18 @@ rustflags = [
@@ -21,50 +21,85 @@ index a20e20d297..1379d22f15 100644
  [target.x86_64-unknown-linux-musl]
  # Config need to be mirrowed to .github/workflows/build_and_deploy.yml
  rustflags = [
-diff --git a/crates/next-napi-bindings/npm/linux-loong-musl/README.md b/crates/next-napi-bindings/npm/linux-loong-musl/README.md
-new file mode 100644
-index 0000000000..8148b0c2cf
---- /dev/null
-+++ b/crates/next-napi-bindings/npm/linux-loong-musl/README.md
-@@ -0,0 +1,3 @@
-+# `@next/swc-linux-loong64-musl`
-+
-+This is the **linux-loong64-musl** binary for `@next/swc`
-diff --git a/crates/next-napi-bindings/npm/linux-loong-musl/package.json b/crates/next-napi-bindings/npm/linux-loong-musl/package.json
-new file mode 100644
-index 0000000000..e3e88e9d58
---- /dev/null
-+++ b/crates/next-napi-bindings/npm/linux-loong-musl/package.json
-@@ -0,0 +1,26 @@
-+{
-+  "name": "@next/swc-linux-loong64-musl",
-+  "version": "0.0.0",
-+  "repository": {
-+    "type": "git",
-+    "url": "https://github.com/vercel/next.js",
-+    "directory": "crates/next-napi-bindings/npm/linux-loong64-musl"
-+  },
-+  "os": [
-+    "linux"
-+  ],
-+  "cpu": [
-+    "loong64"
-+  ],
-+  "libc": [
-+    "musl"
-+  ],
-+  "main": "next-swc.linux-loong64-musl.node",
-+  "files": [
-+    "next-swc.linux-loong64-musl.node"
-+  ],
-+  "license": "MIT",
-+  "engines": {
-+    "node": ">= 10"
-+  }
-+}
+diff --git a/crates/next-napi-bindings/npm/darwin-arm64/README.md b/crates/next-napi-bindings/npm/darwin-arm64/README.md
+deleted file mode 100644
+index 10a0ca93..00000000
+--- a/crates/next-napi-bindings/npm/darwin-arm64/README.md
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# `@next/swc-darwin-arm64`
+-
+-This is the **aarch64-apple-darwin** binary for `@next/swc`
+diff --git a/crates/next-napi-bindings/npm/darwin-arm64/package.json b/crates/next-napi-bindings/npm/darwin-arm64/package.json
+deleted file mode 100644
+index aa2782e9..00000000
+--- a/crates/next-napi-bindings/npm/darwin-arm64/package.json
++++ /dev/null
+@@ -1,23 +0,0 @@
+-{
+-  "name": "@next/swc-darwin-arm64",
+-  "version": "0.0.0",
+-  "repository": {
+-    "type": "git",
+-    "url": "https://github.com/vercel/next.js",
+-    "directory": "crates/next-napi-bindings/npm/darwin-arm64"
+-  },
+-  "os": [
+-    "darwin"
+-  ],
+-  "cpu": [
+-    "arm64"
+-  ],
+-  "main": "next-swc.darwin-arm64.node",
+-  "files": [
+-    "next-swc.darwin-arm64.node"
+-  ],
+-  "license": "MIT",
+-  "engines": {
+-    "node": ">= 10"
+-  }
+-}
+diff --git a/crates/next-napi-bindings/npm/darwin-x64/README.md b/crates/next-napi-bindings/npm/darwin-x64/README.md
+deleted file mode 100644
+index a0d630dd..00000000
+--- a/crates/next-napi-bindings/npm/darwin-x64/README.md
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# `@next/swc-darwin-x64`
+-
+-This is the **x86_64-apple-darwin** binary for `@next/swc`
+diff --git a/crates/next-napi-bindings/npm/darwin-x64/package.json b/crates/next-napi-bindings/npm/darwin-x64/package.json
+deleted file mode 100644
+index b5fdcf58..00000000
+--- a/crates/next-napi-bindings/npm/darwin-x64/package.json
++++ /dev/null
+@@ -1,23 +0,0 @@
+-{
+-  "name": "@next/swc-darwin-x64",
+-  "version": "0.0.0",
+-  "repository": {
+-    "type": "git",
+-    "url": "https://github.com/vercel/next.js",
+-    "directory": "crates/next-napi-bindings/npm/darwin-x64"
+-  },
+-  "os": [
+-    "darwin"
+-  ],
+-  "cpu": [
+-    "x64"
+-  ],
+-  "main": "next-swc.darwin-x64.node",
+-  "files": [
+-    "next-swc.darwin-x64.node"
+-  ],
+-  "license": "MIT",
+-  "engines": {
+-    "node": ">= 10"
+-  }
+-}
 diff --git a/crates/next-napi-bindings/npm/linux-loong64-gnu/README.md b/crates/next-napi-bindings/npm/linux-loong64-gnu/README.md
 new file mode 100644
-index 0000000000..bc707ec286
+index 00000000..bc707ec2
 --- /dev/null
 +++ b/crates/next-napi-bindings/npm/linux-loong64-gnu/README.md
 @@ -0,0 +1,3 @@
@@ -73,7 +108,7 @@ index 0000000000..bc707ec286
 +This is the **linux-loong64-gnu** binary for `@next/swc`
 diff --git a/crates/next-napi-bindings/npm/linux-loong64-gnu/package.json b/crates/next-napi-bindings/npm/linux-loong64-gnu/package.json
 new file mode 100644
-index 0000000000..c4ff7eb7c0
+index 00000000..c4ff7eb7
 --- /dev/null
 +++ b/crates/next-napi-bindings/npm/linux-loong64-gnu/package.json
 @@ -0,0 +1,26 @@
@@ -103,28 +138,146 @@ index 0000000000..c4ff7eb7c0
 +    "node": ">= 10"
 +  }
 +}
+diff --git a/crates/next-napi-bindings/npm/linux-loong64-musl/README.md b/crates/next-napi-bindings/npm/linux-loong64-musl/README.md
+new file mode 100644
+index 00000000..8148b0c2
+--- /dev/null
++++ b/crates/next-napi-bindings/npm/linux-loong64-musl/README.md
+@@ -0,0 +1,3 @@
++# `@next/swc-linux-loong64-musl`
++
++This is the **linux-loong64-musl** binary for `@next/swc`
+diff --git a/crates/next-napi-bindings/npm/linux-loong64-musl/package.json b/crates/next-napi-bindings/npm/linux-loong64-musl/package.json
+new file mode 100644
+index 00000000..e3e88e9d
+--- /dev/null
++++ b/crates/next-napi-bindings/npm/linux-loong64-musl/package.json
+@@ -0,0 +1,26 @@
++{
++  "name": "@next/swc-linux-loong64-musl",
++  "version": "0.0.0",
++  "repository": {
++    "type": "git",
++    "url": "https://github.com/vercel/next.js",
++    "directory": "crates/next-napi-bindings/npm/linux-loong64-musl"
++  },
++  "os": [
++    "linux"
++  ],
++  "cpu": [
++    "loong64"
++  ],
++  "libc": [
++    "musl"
++  ],
++  "main": "next-swc.linux-loong64-musl.node",
++  "files": [
++    "next-swc.linux-loong64-musl.node"
++  ],
++  "license": "MIT",
++  "engines": {
++    "node": ">= 10"
++  }
++}
+diff --git a/crates/next-napi-bindings/npm/win32-arm64-msvc/README.md b/crates/next-napi-bindings/npm/win32-arm64-msvc/README.md
+deleted file mode 100644
+index 0b52c876..00000000
+--- a/crates/next-napi-bindings/npm/win32-arm64-msvc/README.md
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# `@next/swc-win32-arm64-msvc`
+-
+-This is the **win32-arm64-msvc** binary for `@next/swc`
+diff --git a/crates/next-napi-bindings/npm/win32-arm64-msvc/package.json b/crates/next-napi-bindings/npm/win32-arm64-msvc/package.json
+deleted file mode 100644
+index 29727176..00000000
+--- a/crates/next-napi-bindings/npm/win32-arm64-msvc/package.json
++++ /dev/null
+@@ -1,23 +0,0 @@
+-{
+-  "name": "@next/swc-win32-arm64-msvc",
+-  "version": "0.0.0",
+-  "repository": {
+-    "type": "git",
+-    "url": "https://github.com/vercel/next.js",
+-    "directory": "crates/next-napi-bindings/npm/win32-arm64-msvc"
+-  },
+-  "os": [
+-    "win32"
+-  ],
+-  "cpu": [
+-    "arm64"
+-  ],
+-  "main": "next-swc.win32-arm64-msvc.node",
+-  "files": [
+-    "next-swc.win32-arm64-msvc.node"
+-  ],
+-  "license": "MIT",
+-  "engines": {
+-    "node": ">= 10"
+-  }
+-}
+diff --git a/crates/next-napi-bindings/npm/win32-x64-msvc/README.md b/crates/next-napi-bindings/npm/win32-x64-msvc/README.md
+deleted file mode 100644
+index 04e5bcab..00000000
+--- a/crates/next-napi-bindings/npm/win32-x64-msvc/README.md
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# `@next/swc-win32-x64-msvc`
+-
+-This is the **x86_64-pc-windows-msvc** binary for `@next/swc`
+diff --git a/crates/next-napi-bindings/npm/win32-x64-msvc/package.json b/crates/next-napi-bindings/npm/win32-x64-msvc/package.json
+deleted file mode 100644
+index d05f6e1c..00000000
+--- a/crates/next-napi-bindings/npm/win32-x64-msvc/package.json
++++ /dev/null
+@@ -1,23 +0,0 @@
+-{
+-  "name": "@next/swc-win32-x64-msvc",
+-  "version": "0.0.0",
+-  "repository": {
+-    "type": "git",
+-    "url": "https://github.com/vercel/next.js",
+-    "directory": "crates/next-napi-bindings/npm/win32-x64-msvc"
+-  },
+-  "os": [
+-    "win32"
+-  ],
+-  "cpu": [
+-    "x64"
+-  ],
+-  "main": "next-swc.win32-x64-msvc.node",
+-  "files": [
+-    "next-swc.win32-x64-msvc.node"
+-  ],
+-  "license": "MIT",
+-  "engines": {
+-    "node": ">= 10"
+-  }
+-}
 diff --git a/packages/next-swc/package.json b/packages/next-swc/package.json
-index a4fda62856..22c6b1574b 100644
+index a4fda628..c479d785 100644
 --- a/packages/next-swc/package.json
 +++ b/packages/next-swc/package.json
-@@ -27,13 +27,8 @@
+@@ -27,12 +27,12 @@
      "triples": {
        "defaults": true,
        "additional": [
 -        "i686-pc-windows-msvc",
--        "aarch64-unknown-linux-gnu",
+         "aarch64-unknown-linux-gnu",
 -        "aarch64-apple-darwin",
 -        "x86_64-unknown-linux-musl",
--        "aarch64-unknown-linux-musl",
+         "aarch64-unknown-linux-musl",
 -        "aarch64-pc-windows-msvc",
--        "wasm32-wasip1-threads"
 +        "loongarch64-unknown-linux-gnu",
-+        "loongarch64-unknown-linux-musl"
++        "loongarch64-unknown-linux-musl",
++        "x86_64-unknown-linux-gnu",
++        "x86_64-unknown-linux-musl",
+         "wasm32-wasip1-threads"
        ]
      }
-   },
 diff --git a/packages/next/src/build/swc/index.ts b/packages/next/src/build/swc/index.ts
-index 7e00ba746d..81877a42ae 100644
+index 7e00ba74..81877a42 100644
 --- a/packages/next/src/build/swc/index.ts
 +++ b/packages/next/src/build/swc/index.ts
 @@ -69,6 +69,22 @@ function infoLog(...args: any[]) {
@@ -159,7 +312,7 @@ index 7e00ba746d..81877a42ae 100644
      // Below targets are being deprecated, however we keep it in `knownDefaultWasmFallbackTriples` for now
      freebsd: {
 diff --git a/packages/next/src/build/webpack/plugins/telemetry-plugin/telemetry-plugin.ts b/packages/next/src/build/webpack/plugins/telemetry-plugin/telemetry-plugin.ts
-index 95584eb29e..2a4e12ed80 100644
+index 95584eb2..2a4e12ed 100644
 --- a/packages/next/src/build/webpack/plugins/telemetry-plugin/telemetry-plugin.ts
 +++ b/packages/next/src/build/webpack/plugins/telemetry-plugin/telemetry-plugin.ts
 @@ -17,10 +17,12 @@ export type SWC_TARGET_TRIPLE =
@@ -189,7 +342,7 @@ index 95584eb29e..2a4e12ed80 100644
    'transpilePackages',
    'skipProxyUrlNormalize',
 diff --git a/packages/next/src/cli/next-info.ts b/packages/next/src/cli/next-info.ts
-index b04a51370c..c974fdb70a 100755
+index b04a5137..c974fdb7 100755
 --- a/packages/next/src/cli/next-info.ts
 +++ b/packages/next/src/cli/next-info.ts
 @@ -391,6 +391,22 @@ async function printVerboseInfo() {
@@ -216,7 +369,7 @@ index b04a51370c..c974fdb70a 100755
  
            if (!triples || triples.length === 0) {
 diff --git a/rspack/crates/binding/index.js b/rspack/crates/binding/index.js
-index 0973817cbd..cf33a806e8 100644
+index 0973817c..cf33a806 100644
 --- a/rspack/crates/binding/index.js
 +++ b/rspack/crates/binding/index.js
 @@ -278,6 +278,30 @@ function requireNative() {
@@ -251,7 +404,7 @@ index 0973817cbd..cf33a806e8 100644
        if (isMusl()) {
          try {
 diff --git a/scripts/install-native.mjs b/scripts/install-native.mjs
-index d1854530d9..adc00eb701 100644
+index d1854530..adc00eb7 100644
 --- a/scripts/install-native.mjs
 +++ b/scripts/install-native.mjs
 @@ -50,6 +50,8 @@ import fsp from 'fs/promises'
@@ -264,39 +417,42 @@ index d1854530d9..adc00eb701 100644
          '@next/swc-linux-x64-musl': nextVersion,
          '@next/swc-win32-arm64-msvc': nextVersion,
 diff --git a/scripts/publish-native.js b/scripts/publish-native.js
-index 9d4dafbcc4..ba61b72c03 100755
+index 9d4dafbc..2d4aca76 100755
 --- a/scripts/publish-native.js
 +++ b/scripts/publish-native.js
-@@ -48,6 +48,7 @@ const cwd = process.cwd()
+@@ -43,7 +43,7 @@ const cwd = process.cwd()
+           const child = execa(
+             `npm`,
+             [
+-              `publish`,
++              `pack`,
+               `${path.join(nativePackagesDir, platform)}`,
                `--access`,
                `public`,
-               ...(version.includes('canary') ? ['--tag', 'canary'] : []),
-+              `--dry-run`,
-             ],
-             { stdio: 'inherit' }
-           )
-@@ -106,6 +107,7 @@ const cwd = process.cwd()
+@@ -101,7 +101,7 @@ const cwd = process.cwd()
+           await execa(
+             `npm`,
+             [
+-              'publish',
++              'pack',
+               `${path.join(wasmDir, `pkg-${wasmTarget}`)}`,
                '--access',
                'public',
-               ...(version.includes('canary') ? ['--tag', 'canary'] : []),
-+              `--dry-run`,
-             ],
-             { stdio: 'inherit' }
-           )
 diff --git a/scripts/publish-release.js b/scripts/publish-release.js
-index c33f6e0cc0..51c6ed1a57 100755
+index c33f6e0c..471b2999 100755
 --- a/scripts/publish-release.js
 +++ b/scripts/publish-release.js
-@@ -91,6 +91,7 @@ const cwd = process.cwd()
+@@ -86,7 +86,7 @@ const cwd = process.cwd()
+       const child = execa(
+         `npm`,
+         [
+-          'publish',
++          'pack',
+           `${path.join(packagesDir, pkg)}`,
            '--access',
            'public',
-           '--ignore-scripts',
-+          `--dry-run`,
-           '--tag',
-           tag,
-         ],
 diff --git a/turbopack/crates/turbopack-core/src/target.rs b/turbopack/crates/turbopack-core/src/target.rs
-index b70090fa0d..845321a653 100644
+index b70090fa..845321a6 100644
 --- a/turbopack/crates/turbopack-core/src/target.rs
 +++ b/turbopack/crates/turbopack-core/src/target.rs
 @@ -99,6 +99,10 @@ impl CompileTarget {
@@ -327,7 +483,7 @@ index b70090fa0d..845321a653 100644
              Self::Mipsel => "mipsel",
              Self::Ppc => "ppc",
 diff --git a/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph-explained.snapshot b/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph-explained.snapshot
-index 05b2021866..7fe0c1afe8 100644
+index 05b20218..7fe0c1af 100644
 --- a/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph-explained.snapshot
 +++ b/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph-explained.snapshot
 @@ -47,6 +47,7 @@ knownUnixlikePackages (const after eval) = {
@@ -339,7 +495,7 @@ index 05b2021866..7fe0c1afe8 100644
      "linux ppc64 LE": "esbuild-linux-ppc64le",
      "linux s390x BE": "esbuild-linux-s390x",
 diff --git a/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph.snapshot b/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph.snapshot
-index 29a55d0cc1..87222e70af 100644
+index 29a55d0c..87222e70 100644
 --- a/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph.snapshot
 +++ b/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph.snapshot
 @@ -558,6 +558,22 @@
@@ -366,7 +522,7 @@ index 29a55d0cc1..87222e70af 100644
                      Constant(
                          Str(
 diff --git a/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/input.js b/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/input.js
-index bdd1e511e6..375605b1cc 100644
+index bdd1e511..375605b1 100644
 --- a/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/input.js
 +++ b/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/input.js
 @@ -16,6 +16,7 @@ var knownUnixlikePackages = {
@@ -378,7 +534,7 @@ index bdd1e511e6..375605b1cc 100644
    "linux ppc64 LE": "esbuild-linux-ppc64le",
    "linux s390x BE": "esbuild-linux-s390x",
 diff --git a/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/resolved-explained.snapshot b/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/resolved-explained.snapshot
-index 30fd8dec15..ce700d64cc 100644
+index 30fd8dec..ce700d64 100644
 --- a/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/resolved-explained.snapshot
 +++ b/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/resolved-explained.snapshot
 @@ -138,6 +138,7 @@ knownUnixlikePackages = {
