@@ -673,7 +673,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG_NAME="${{ inputs.version }}"
+          TAG_NAME="${{ needs.deploy-target.outputs.version }}"
           gh release create "${TAG_NAME}" \
             --repo ${{ github.repository }} \
             --generate-notes \
