@@ -13,7 +13,10 @@ on:
 
 env:
   NAPI_CLI_VERSION: 2.18.4
-  NODE_LTS_VERSION: 20
+  TURBO_VERSION: 2.9.4
+  # --env-mode loose is a breaking change required with turbo 2.x since Strict mode is now the default
+  # TODO: we should add the relevant envs later to to switch to strict mode
+  TURBO_ARGS: '-v --env-mode loose --remote-cache-timeout 90 --summarize --log-order stream'
   TURBO_TEAM: 'loong64'
   # Prefer shared remote cache across runs, but keep local cache enabled so jobs
   # degrade gracefully if the remote cache or token is unavailable.
@@ -23,6 +26,9 @@ env:
   #
   # See https://doc.rust-lang.org/rustc/platform-support/apple-darwin.html#os-version for more details
   MACOSX_DEPLOYMENT_TARGET: 11.0
+  # Run GitHub Actions JS with Node.js 24 to avoid deprecation warnings
+  # (needed until actions/checkout, actions/setup-node, etc. all default to node24)
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   check:
@@ -37,7 +43,7 @@ jobs:
           if [ -n "${{ inputs.version }}" ]; then
             version="${{ inputs.version }}"
           else
-            version=$(curl -s https://api.github.com/repos/vercel/next.js/releases/latest | jq -r ".tag_name")
+            version=$(curl --retry 10 -s https://api.github.com/repos/vercel/next.js/releases/latest | jq -r ".tag_name")
           fi
           echo "Current Version: ${version}"
           if [ -z "${version}" ] || [ "${version}" == "null" ]; then
@@ -64,13 +70,14 @@ jobs:
       version: ${{ needs.check.outputs.version }}
       release_environment: ${{ steps.deploy-target.outputs.release_environment }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          fetch-depth: 1
           repository: vercel/next.js
           ref: ${{ needs.check.outputs.version }}
       - run: echo "${{ github.event.after }}"
       - name: Setup node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ env.NODE_LTS_VERSION }}
           check-latest: true
@@ -124,8 +131,11 @@ jobs:
           fi
         env:
           GIT_REF: ${{ github.ref }}
-      - name: Print deploy target
-        run: echo "Deploy target is '${{ steps.deploy-target.outputs.value }}'"
+      - name: Print deploy plan
+        run: |
+          echo "Deploy target is '${{ steps.deploy-target.outputs.value }}'"
+          echo "Release environment is '${{ steps.deploy-target.outputs.release_environment }}'"
+
 
   build:
     if: ${{ needs.deploy-target.outputs.value != 'skipped' }}
@@ -139,17 +149,19 @@ jobs:
       NEXT_SKIP_NATIVE_POSTINSTALL: 1
     steps:
       - name: Setup node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ env.NODE_LTS_VERSION }}
           check-latest: true
+          package-manager-cache: false
       - name: Setup corepack
         run: |
           npm i -g corepack@0.31
           corepack enable
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          fetch-depth: 25
           repository: vercel/next.js
           ref: ${{ needs.deploy-target.outputs.version }}
 
@@ -161,7 +173,7 @@ jobs:
       - id: get-store-path
         run: echo STORE_PATH=$(pnpm store path) >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         timeout-minutes: 5
         id: cache-pnpm-store
         with:
@@ -169,7 +181,7 @@ jobs:
           key: pnpm-store-v2-${{ hashFiles('pnpm-lock.yaml') }}
           # Do not use restore-keys since it leads to indefinite growth of the cache.
 
-      - run: pnpm install
+      - run: pnpm install --no-frozen-lockfile
 
       - name: Set preview version
         if: ${{ contains(fromJSON('["automated-preview","force-preview"]'), needs.deploy-target.outputs.value) }}
@@ -179,7 +191,7 @@ jobs:
 
       - run: pnpm run build
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         timeout-minutes: 5
         id: cache-build
         with:
@@ -198,7 +210,65 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        exclude:
+          # only build the binaries we run automated tests against
+          # linux GNU x64
+          - settings:
+              target: ${{ needs.deploy-target.outputs.value == 'automated-preview' && 'aarch64-apple-darwin' }}
+          - settings:
+              target: ${{ needs.deploy-target.outputs.value == 'automated-preview' && 'aarch64-pc-windows-msvc' }}
+          - settings:
+              target: ${{ needs.deploy-target.outputs.value == 'automated-preview' && 'aarch64-unknown-linux-gnu' }}
+          - settings:
+              target: ${{ needs.deploy-target.outputs.value == 'automated-preview' && 'aarch64-unknown-linux-musl' }}
+          - settings:
+              target: ${{ needs.deploy-target.outputs.value == 'automated-preview' && 'x86_64-pc-windows-msvc' }}
+          - settings:
+              target: ${{ needs.deploy-target.outputs.value == 'automated-preview' && 'x86_64-unknown-linux-musl' }}
+          - settings:
+              target: ${{ needs.deploy-target.outputs.value == 'automated-preview' && 'x86_64-apple-darwin' }}
+
         settings:
+          - host: 'macos-15-intel'
+            target: 'x86_64-apple-darwin'
+            # --env-mode loose is a breaking change required with turbo 2.x since Strict mode is now the default
+            # TODO: we should add the relevant envs later to to switch to strict mode
+            build: |
+              npm i -g "@napi-rs/cli@${NAPI_CLI_VERSION}" && corepack enable
+              TURBO_CACHE_FLAG="${NEXT_SKIP_BUILD_CACHE:+--force}"
+              pnpm dlx turbo@${TURBO_VERSION} run build-native-release -vvv --env-mode loose --remote-cache-timeout 90 --summarize ${TURBO_CACHE_FLAG} -- --target x86_64-apple-darwin
+              strip -x packages/next-swc/native/next-swc.*.node
+
+          - host: 'macos-15'
+            target: 'aarch64-apple-darwin'
+            # --env-mode loose is a breaking change required with turbo 2.x since Strict mode is now the default
+            # TODO: we should add the relevant envs later to to switch to strict mode
+            build: |
+              npm i -g "@napi-rs/cli@${NAPI_CLI_VERSION}" && corepack enable
+              TURBO_CACHE_FLAG="${NEXT_SKIP_BUILD_CACHE:+--force}"
+              pnpm dlx turbo@${TURBO_VERSION} run build-native-release -vvv --env-mode loose --remote-cache-timeout 90 --summarize ${TURBO_CACHE_FLAG} -- --target aarch64-apple-darwin
+              strip -x packages/next-swc/native/next-swc.*.node
+
+          - host: 'windows-latest'
+            # --env-mode loose is a breaking change required with turbo 2.x since Strict mode is now the default
+            # TODO: we should add the relevant envs later to to switch to strict mode
+            build: |
+              corepack enable
+              npm i -g "@napi-rs/cli@${NAPI_CLI_VERSION}"
+              TURBO_CACHE_FLAG="${NEXT_SKIP_BUILD_CACHE:+--force}"
+              pnpm dlx turbo@${TURBO_VERSION} run build-native-release -vvv --env-mode loose --remote-cache-timeout 90 --summarize ${TURBO_CACHE_FLAG} -- --target x86_64-pc-windows-msvc
+            target: 'x86_64-pc-windows-msvc'
+
+          - host: 'windows-latest'
+            target: 'aarch64-pc-windows-msvc'
+            # --env-mode loose is a breaking change required with turbo 2.x since Strict mode is now the default
+            # TODO: we should add the relevant envs later to to switch to strict mode
+            build: |
+              corepack enable
+              npm i -g "@napi-rs/cli@${NAPI_CLI_VERSION}"
+              TURBO_CACHE_FLAG="${NEXT_SKIP_BUILD_CACHE:+--force}"
+              pnpm dlx turbo@${TURBO_VERSION} run build-native-no-plugin-release -vvv --env-mode loose --remote-cache-timeout 90 --summarize ${TURBO_CACHE_FLAG} -- --target aarch64-pc-windows-msvc
+
           - host: 'ubuntu-latest'
             target: 'x86_64-unknown-linux-gnu'
             # [NOTE] If you want to update / modify build steps, check these things:
@@ -350,26 +420,31 @@ jobs:
         if: ${{ startsWith(matrix.settings.host, 'macos-15') }}
       # we use checkout here instead of the build cache since
       # it can fail to restore in different OS'
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          # crates/next-napi-bindings/build.rs uses git-describe to find the most recent git tag. It's okay if
+          # this fails, but fetch with enough depth that we're likely to find a recent tag.
           repository: vercel/next.js
           ref: ${{ needs.deploy-target.outputs.version }}
+          fetch-depth: 100
 
       - name: Prepare build
+        if: ${{ matrix.settings.host == 'ubuntu-latest' }}
         run: |
           wget -qO - https://github.com/${{ github.repository }}/raw/refs/heads/main/patch_loong64.patch | patch -p1
           echo 'cty = { git = "https://github.com/loong64/cty", branch = "loong64-v0.2.2" }' >> Cargo.toml
           cargo update -p cty
 
       - name: Setup node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         if: ${{ !matrix.settings.docker }}
         with:
           node-version: ${{ env.NODE_LTS_VERSION }}
           check-latest: true
+          package-manager-cache: false
 
       - name: Prepare corepack
-        if: ${{ matrix.settings.host != 'windows-latest-8-core-oss' }}
+        if: ${{ matrix.settings.host != 'windows-latest' }}
         run: npm i -g corepack@0.31
 
       - name: Setup corepack
@@ -389,7 +464,7 @@ jobs:
         if: ${{ matrix.settings.setup }}
 
       - name: Cache on ${{ github.ref_name }}
-        uses: ijjk/rust-cache@turbo-cache-v1.0.9
+        uses: ijjk/rust-cache@a34594c450817c9860143c79797a8770c4e587f5 # turbo-cache-v1.0.9
         if: ${{ !env.NEXT_SKIP_BUILD_CACHE }}
         with:
           save-if: 'true'
@@ -470,19 +545,19 @@ jobs:
 
       - name: Upload turbopack bytesize artifact
         if: ${{ steps.check-did-build.outputs.DID_BUILD == 'true' }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: turbopack-bytesize-${{ matrix.settings.target }}
           path: turbopack-bin-size/*
 
       - name: Upload swc artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: next-swc-binaries-${{ matrix.settings.target }}
           path: packages/next-swc/native/next-swc.*.node
 
       - name: Upload turbo summary artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: turbo-run-summary-${{ matrix.settings.target }}
           path: .turbo/runs
@@ -498,7 +573,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: vercel/next.js
           ref: ${{ needs.deploy-target.outputs.version }}
@@ -508,10 +583,11 @@ jobs:
           wget -qO - https://github.com/${{ github.repository }}/raw/refs/heads/main/patch_loong64.patch | patch -p1
 
       - name: Setup node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ env.NODE_LTS_VERSION }}
           check-latest: true
+          package-manager-cache: false
       - run: corepack enable
 
       - name: Install Rust
@@ -534,13 +610,13 @@ jobs:
         run: '[[ -d "crates/wasm/pkg" ]] && mv crates/wasm/pkg crates/wasm/pkg-${{ matrix.target }} || ls crates/wasm'
 
       - name: Upload turbo summary artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: turbo-run-summary-wasm-${{matrix.target}}
           path: .turbo/runs
 
       - name: Upload swc artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: wasm-binaries-${{matrix.target}}
           path: crates/wasm/pkg-*
@@ -556,10 +632,11 @@ jobs:
       - build-native
     steps:
       - name: Setup node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ env.NODE_LTS_VERSION }}
           check-latest: true
+          package-manager-cache: false
       - name: Setup corepack
         run: |
           npm i -g corepack@0.31
@@ -569,7 +646,7 @@ jobs:
       - name: tune linux network
         run: sudo ethtool -K eth0 tx off rx off
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         timeout-minutes: 5
         id: restore-build
         with:
@@ -581,13 +658,13 @@ jobs:
             ${{ github.sha }}-${{ github.run_number }}
             ${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt}}
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: next-swc-binaries-*
           merge-multiple: true
           path: packages/next-swc/native
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: wasm-binaries-*
           merge-multiple: true
@@ -599,7 +676,7 @@ jobs:
         run: node scripts/create-preview-tarballs.js "${{ github.event.after || github.sha }}" "${{ runner.temp }}/preview-tarballs"
 
       - name: Upload tarballs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           # Update all mentions of this name in vercel-packages when changing.
           name: preview-tarballs
@@ -620,11 +697,12 @@ jobs:
       id-token: write
     steps:
       - name: Setup node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24
           check-latest: true
           registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
       - name: Setup corepack
         run: |
           npm i -g corepack@0.31
@@ -634,7 +712,7 @@ jobs:
       - name: tune linux network
         run: sudo ethtool -K eth0 tx off rx off
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         timeout-minutes: 5
         id: restore-build
         with:
@@ -646,22 +724,35 @@ jobs:
             ${{ github.sha }}-${{ github.run_number }}
             ${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt}}
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: next-swc-binaries-*
           merge-multiple: true
           path: packages/next-swc/native
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: wasm-binaries-*
           merge-multiple: true
           path: crates/wasm
 
-      - run: ./scripts/publish-native.js
+      - name: Update pnpm
+        run: |
+          sed -i 's/pnpm@9.6.0/pnpm@11.9.0/g' package.json
+          sed -i 's/"pnpm": "9.6.0"/"pnpm": "11.9.0"/g' package.json
+
       - run: ./scripts/publish-release.js
         env:
           RELEASE_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BAIL_ON_NATIVE_WASM_PUBLISH_FAILURE: ${{ vars.BAIL_ON_NATIVE_WASM_PUBLISH_FAILURE }}
+
+      - name: Upload pnpm publish summary
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pnpm-publish-summary
+          path: pnpm-publish-summary.json
+          if-no-files-found: ignore
 
       - name: Make artifacts
         run: |

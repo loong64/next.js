@@ -21,82 +21,6 @@ index a20e20d2..1379d22f 100644
  [target.x86_64-unknown-linux-musl]
  # Config need to be mirrowed to .github/workflows/build_and_deploy.yml
  rustflags = [
-diff --git a/crates/next-napi-bindings/npm/darwin-arm64/README.md b/crates/next-napi-bindings/npm/darwin-arm64/README.md
-deleted file mode 100644
-index 10a0ca93..00000000
---- a/crates/next-napi-bindings/npm/darwin-arm64/README.md
-+++ /dev/null
-@@ -1,3 +0,0 @@
--# `@next/swc-darwin-arm64`
--
--This is the **aarch64-apple-darwin** binary for `@next/swc`
-diff --git a/crates/next-napi-bindings/npm/darwin-arm64/package.json b/crates/next-napi-bindings/npm/darwin-arm64/package.json
-deleted file mode 100644
-index aa2782e9..00000000
---- a/crates/next-napi-bindings/npm/darwin-arm64/package.json
-+++ /dev/null
-@@ -1,23 +0,0 @@
--{
--  "name": "@next/swc-darwin-arm64",
--  "version": "0.0.0",
--  "repository": {
--    "type": "git",
--    "url": "https://github.com/vercel/next.js",
--    "directory": "crates/next-napi-bindings/npm/darwin-arm64"
--  },
--  "os": [
--    "darwin"
--  ],
--  "cpu": [
--    "arm64"
--  ],
--  "main": "next-swc.darwin-arm64.node",
--  "files": [
--    "next-swc.darwin-arm64.node"
--  ],
--  "license": "MIT",
--  "engines": {
--    "node": ">= 10"
--  }
--}
-diff --git a/crates/next-napi-bindings/npm/darwin-x64/README.md b/crates/next-napi-bindings/npm/darwin-x64/README.md
-deleted file mode 100644
-index a0d630dd..00000000
---- a/crates/next-napi-bindings/npm/darwin-x64/README.md
-+++ /dev/null
-@@ -1,3 +0,0 @@
--# `@next/swc-darwin-x64`
--
--This is the **x86_64-apple-darwin** binary for `@next/swc`
-diff --git a/crates/next-napi-bindings/npm/darwin-x64/package.json b/crates/next-napi-bindings/npm/darwin-x64/package.json
-deleted file mode 100644
-index b5fdcf58..00000000
---- a/crates/next-napi-bindings/npm/darwin-x64/package.json
-+++ /dev/null
-@@ -1,23 +0,0 @@
--{
--  "name": "@next/swc-darwin-x64",
--  "version": "0.0.0",
--  "repository": {
--    "type": "git",
--    "url": "https://github.com/vercel/next.js",
--    "directory": "crates/next-napi-bindings/npm/darwin-x64"
--  },
--  "os": [
--    "darwin"
--  ],
--  "cpu": [
--    "x64"
--  ],
--  "main": "next-swc.darwin-x64.node",
--  "files": [
--    "next-swc.darwin-x64.node"
--  ],
--  "license": "MIT",
--  "engines": {
--    "node": ">= 10"
--  }
--}
 diff --git a/crates/next-napi-bindings/npm/linux-loong64-gnu/README.md b/crates/next-napi-bindings/npm/linux-loong64-gnu/README.md
 new file mode 100644
 index 00000000..bc707ec2
@@ -179,103 +103,22 @@ index 00000000..e3e88e9d
 +    "node": ">= 10"
 +  }
 +}
-diff --git a/crates/next-napi-bindings/npm/win32-arm64-msvc/README.md b/crates/next-napi-bindings/npm/win32-arm64-msvc/README.md
-deleted file mode 100644
-index 0b52c876..00000000
---- a/crates/next-napi-bindings/npm/win32-arm64-msvc/README.md
-+++ /dev/null
-@@ -1,3 +0,0 @@
--# `@next/swc-win32-arm64-msvc`
--
--This is the **win32-arm64-msvc** binary for `@next/swc`
-diff --git a/crates/next-napi-bindings/npm/win32-arm64-msvc/package.json b/crates/next-napi-bindings/npm/win32-arm64-msvc/package.json
-deleted file mode 100644
-index 29727176..00000000
---- a/crates/next-napi-bindings/npm/win32-arm64-msvc/package.json
-+++ /dev/null
-@@ -1,23 +0,0 @@
--{
--  "name": "@next/swc-win32-arm64-msvc",
--  "version": "0.0.0",
--  "repository": {
--    "type": "git",
--    "url": "https://github.com/vercel/next.js",
--    "directory": "crates/next-napi-bindings/npm/win32-arm64-msvc"
--  },
--  "os": [
--    "win32"
--  ],
--  "cpu": [
--    "arm64"
--  ],
--  "main": "next-swc.win32-arm64-msvc.node",
--  "files": [
--    "next-swc.win32-arm64-msvc.node"
--  ],
--  "license": "MIT",
--  "engines": {
--    "node": ">= 10"
--  }
--}
-diff --git a/crates/next-napi-bindings/npm/win32-x64-msvc/README.md b/crates/next-napi-bindings/npm/win32-x64-msvc/README.md
-deleted file mode 100644
-index 04e5bcab..00000000
---- a/crates/next-napi-bindings/npm/win32-x64-msvc/README.md
-+++ /dev/null
-@@ -1,3 +0,0 @@
--# `@next/swc-win32-x64-msvc`
--
--This is the **x86_64-pc-windows-msvc** binary for `@next/swc`
-diff --git a/crates/next-napi-bindings/npm/win32-x64-msvc/package.json b/crates/next-napi-bindings/npm/win32-x64-msvc/package.json
-deleted file mode 100644
-index d05f6e1c..00000000
---- a/crates/next-napi-bindings/npm/win32-x64-msvc/package.json
-+++ /dev/null
-@@ -1,23 +0,0 @@
--{
--  "name": "@next/swc-win32-x64-msvc",
--  "version": "0.0.0",
--  "repository": {
--    "type": "git",
--    "url": "https://github.com/vercel/next.js",
--    "directory": "crates/next-napi-bindings/npm/win32-x64-msvc"
--  },
--  "os": [
--    "win32"
--  ],
--  "cpu": [
--    "x64"
--  ],
--  "main": "next-swc.win32-x64-msvc.node",
--  "files": [
--    "next-swc.win32-x64-msvc.node"
--  ],
--  "license": "MIT",
--  "engines": {
--    "node": ">= 10"
--  }
--}
 diff --git a/packages/next-swc/package.json b/packages/next-swc/package.json
-index a4fda628..c479d785 100644
+index c76f5ec6..12141cc3 100644
 --- a/packages/next-swc/package.json
 +++ b/packages/next-swc/package.json
-@@ -27,12 +27,12 @@
-     "triples": {
-       "defaults": true,
+@@ -29,9 +29,11 @@
        "additional": [
--        "i686-pc-windows-msvc",
+         "i686-pc-windows-msvc",
          "aarch64-unknown-linux-gnu",
--        "aarch64-apple-darwin",
--        "x86_64-unknown-linux-musl",
-         "aarch64-unknown-linux-musl",
--        "aarch64-pc-windows-msvc",
 +        "loongarch64-unknown-linux-gnu",
+         "aarch64-apple-darwin",
+         "x86_64-unknown-linux-musl",
+         "aarch64-unknown-linux-musl",
 +        "loongarch64-unknown-linux-musl",
-+        "x86_64-unknown-linux-gnu",
-+        "x86_64-unknown-linux-musl",
+         "aarch64-pc-windows-msvc",
          "wasm32-wasip1-threads"
        ]
-     }
 diff --git a/packages/next/src/build/swc/index.ts b/packages/next/src/build/swc/index.ts
 index 7e00ba74..81877a42 100644
 --- a/packages/next/src/build/swc/index.ts
@@ -416,43 +259,55 @@ index d1854530..adc00eb7 100644
          '@next/swc-linux-x64-gnu': nextVersion,
          '@next/swc-linux-x64-musl': nextVersion,
          '@next/swc-win32-arm64-msvc': nextVersion,
-diff --git a/scripts/publish-native.js b/scripts/publish-native.js
-index 9d4dafbc..2d4aca76 100755
---- a/scripts/publish-native.js
-+++ b/scripts/publish-native.js
-@@ -43,7 +43,7 @@ const cwd = process.cwd()
-           const child = execa(
-             `npm`,
-             [
--              `publish`,
-+              `pack`,
-               `${path.join(nativePackagesDir, platform)}`,
-               `--access`,
-               `public`,
-@@ -101,7 +101,7 @@ const cwd = process.cwd()
-           await execa(
-             `npm`,
-             [
--              'publish',
-+              'pack',
-               `${path.join(wasmDir, `pkg-${wasmTarget}`)}`,
-               '--access',
-               'public',
 diff --git a/scripts/publish-release.js b/scripts/publish-release.js
-index c33f6e0c..471b2999 100755
+index ed6c71df..699a0fab 100755
 --- a/scripts/publish-release.js
 +++ b/scripts/publish-release.js
-@@ -86,7 +86,7 @@ const cwd = process.cwd()
-       const child = execa(
-         `npm`,
-         [
--          'publish',
-+          'pack',
-           `${path.join(packagesDir, pkg)}`,
-           '--access',
-           'public',
+@@ -145,6 +145,8 @@ const publishRetryDelaySeconds = 15
+         '--ignore-scripts',
+         '--tag',
+         npmDistTag,
++        '--dry-run',
++        '--force',
+         ...(dryRun ? ['--dry-run'] : []),
+       ])
+     })
+@@ -181,6 +183,8 @@ const publishRetryDelaySeconds = 15
+         '--ignore-scripts',
+         '--tag',
+         npmDistTag,
++        '--dry-run',
++        '--force',
+         ...(dryRun ? ['--dry-run'] : []),
+       ])
+     })
+@@ -240,6 +244,8 @@ const publishRetryDelaySeconds = 15
+     '--report-summary',
+     '--tag',
+     npmDistTag,
++    '--dry-run',
++    '--force',
+     ...(dryRun ? ['--dry-run'] : []),
+   ])
+ 
+diff --git a/scripts/publish-release.sh b/scripts/publish-release.sh
+new file mode 100755
+index 00000000..2e2b0663
+--- /dev/null
++++ b/scripts/publish-release.sh
+@@ -0,0 +1,10 @@
++#!/bin/bash
++
++set -e
++
++for pkg in packages/*; do
++  if [ -f "${pkg}/package.json" ]; then
++    echo "Publishing $pkg..."
++    pnpm pack "${pkg}"
++  fi
++done
 diff --git a/turbopack/crates/turbopack-core/src/target.rs b/turbopack/crates/turbopack-core/src/target.rs
-index b70090fa..845321a6 100644
+index b70090fa..c5967ec6 100644
 --- a/turbopack/crates/turbopack-core/src/target.rs
 +++ b/turbopack/crates/turbopack-core/src/target.rs
 @@ -99,6 +99,10 @@ impl CompileTarget {
