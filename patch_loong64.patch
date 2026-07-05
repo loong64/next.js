@@ -260,52 +260,23 @@ index d1854530..adc00eb7 100644
          '@next/swc-linux-x64-musl': nextVersion,
          '@next/swc-win32-arm64-msvc': nextVersion,
 diff --git a/scripts/publish-release.js b/scripts/publish-release.js
-index ed6c71df..699a0fab 100755
+index ed6c71df..35d649d3 100755
 --- a/scripts/publish-release.js
 +++ b/scripts/publish-release.js
-@@ -145,6 +145,8 @@ const publishRetryDelaySeconds = 15
-         '--ignore-scripts',
-         '--tag',
-         npmDistTag,
-+        '--dry-run',
-+        '--force',
-         ...(dryRun ? ['--dry-run'] : []),
-       ])
-     })
-@@ -181,6 +183,8 @@ const publishRetryDelaySeconds = 15
-         '--ignore-scripts',
-         '--tag',
-         npmDistTag,
-+        '--dry-run',
-+        '--force',
-         ...(dryRun ? ['--dry-run'] : []),
-       ])
-     })
-@@ -240,6 +244,8 @@ const publishRetryDelaySeconds = 15
-     '--report-summary',
-     '--tag',
-     npmDistTag,
-+    '--dry-run',
-+    '--force',
-     ...(dryRun ? ['--dry-run'] : []),
-   ])
- 
-diff --git a/scripts/publish-release.sh b/scripts/publish-release.sh
-new file mode 100755
-index 00000000..2e2b0663
---- /dev/null
-+++ b/scripts/publish-release.sh
-@@ -0,0 +1,10 @@
-+#!/bin/bash
-+
-+set -e
-+
-+for pkg in packages/*; do
-+  if [ -f "${pkg}/package.json" ]; then
-+    echo "Publishing $pkg..."
-+    pnpm pack "${pkg}"
-+  fi
-+done
+@@ -161,11 +161,11 @@ const publishRetryDelaySeconds = 15
+           encoding: 'utf-8',
+         })
+       )
+-      wasmPkg.name = `@next/swc-wasm-${wasmTarget}`
++      wasmPkg.name = `@loong64/swc-wasm-${wasmTarget}`
+       wasmPkg.version = version
+       wasmPkg.repository = {
+         type: 'git',
+-        url: 'https://github.com/vercel/next.js',
++        url: 'https://github.com/loong64/next.js',
+         directory: pkgDirectory,
+       }
+       await fs.writeFile(
 diff --git a/turbopack/crates/turbopack-core/src/target.rs b/turbopack/crates/turbopack-core/src/target.rs
 index b70090fa..c5967ec6 100644
 --- a/turbopack/crates/turbopack-core/src/target.rs

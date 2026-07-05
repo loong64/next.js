@@ -740,6 +740,15 @@ jobs:
         run: |
           sed -i 's/pnpm@9.6.0/pnpm@11.9.0/g' package.json
           sed -i 's/"pnpm": "9.6.0"/"pnpm": "11.9.0"/g' package.json
+          find crates/ -type f -name package.json -exec sed -i 's#"name": "@next#"name": "@loong64#g' {} \;
+          find packages/ -type f -name package.json -exec sed -i 's#"name": "@next#"name": "@loong64#g' {} \;
+          find crates/ -type f -name package.json -exec sed -i 's#github.com/vercel#github.com/loong64#g' {} \;
+          find packages/ -type f -name package.json -exec sed -i 's#github.com/vercel#github.com/loong64#g' {} \;
+
+      - name: Setup NPM token
+        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - run: ./scripts/publish-release.js
         env:
@@ -754,12 +763,6 @@ jobs:
           path: pnpm-publish-summary.json
           if-no-files-found: ignore
 
-      - name: Make artifacts
-        run: |
-          mkdir -p release-assets
-          find . -path "./node_modules" -prune -o -name "*.tgz" -type f -exec mv {} release-assets/ \;
-          ls -lh release-assets/
-
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -768,5 +771,4 @@ jobs:
           gh release create "${TAG_NAME}" \
             --repo ${{ github.repository }} \
             --generate-notes \
-            --title "${TAG_NAME}" \
-            release-assets/*
+            --title "${TAG_NAME}"
