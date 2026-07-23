@@ -744,6 +744,7 @@ jobs:
           find packages/ -type f -name package.json -exec sed -i 's#"name": "@next#"name": "@loong64#g' {} \;
           find crates/ -type f -name package.json -exec sed -i 's#github.com/vercel#github.com/loong64#g' {} \;
           find packages/ -type f -name package.json -exec sed -i 's#github.com/vercel#github.com/loong64#g' {} \;
+          find packages/ -type f -name package.json -exec sed -i 's#"url": "vercel/next.js",#"url": "loong64/next.js",#g' {} \;
 
       - name: Setup NPM token
         run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
