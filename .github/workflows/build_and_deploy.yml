@@ -144,9 +144,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NEXT_TELEMETRY_DISABLED: 1
-      # we build a dev binary for use in CI so skip downloading
-      # canary next-swc binaries in the monorepo
-      NEXT_SKIP_NATIVE_POSTINSTALL: 1
     steps:
       - name: Setup node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
@@ -267,7 +264,7 @@ jobs:
               corepack enable
               npm i -g "@napi-rs/cli@${NAPI_CLI_VERSION}"
               TURBO_CACHE_FLAG="${NEXT_SKIP_BUILD_CACHE:+--force}"
-              pnpm dlx turbo@${TURBO_VERSION} run build-native-no-plugin-release -vvv --env-mode loose --remote-cache-timeout 90 --summarize ${TURBO_CACHE_FLAG} -- --target aarch64-pc-windows-msvc
+              pnpm dlx turbo@${TURBO_VERSION} run build-native-release -vvv --env-mode loose --remote-cache-timeout 90 --summarize ${TURBO_CACHE_FLAG} -- --target aarch64-pc-windows-msvc
 
           - host: 'ubuntu-latest'
             target: 'x86_64-unknown-linux-gnu'
