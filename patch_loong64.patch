@@ -1,26 +1,3 @@
-diff --git a/.cargo/config.toml b/.cargo/config.toml
-index a20e20d2..1379d22f 100644
---- a/.cargo/config.toml
-+++ b/.cargo/config.toml
-@@ -58,6 +58,18 @@ rustflags = [
-   "-Clink-arg=-lgcc",
- ]
- 
-+[target.loongarch64-unknown-linux-musl]
-+linker = "loongarch64-linux-musl-gcc"
-+# Config need to be mirrowed to .github/workflows/build_and_deploy.yml
-+rustflags = [
-+  "--cfg",
-+  "tokio_unstable",
-+  "-Zshare-generics=y",
-+  "-Csymbol-mangling-version=v0",
-+  "-Ctarget-feature=-crt-static",
-+  "-Clink-arg=-lgcc",
-+]
-+
- [target.x86_64-unknown-linux-musl]
- # Config need to be mirrowed to .github/workflows/build_and_deploy.yml
- rustflags = [
 diff --git a/crates/next-napi-bindings/npm/linux-loong64-gnu/README.md b/crates/next-napi-bindings/npm/linux-loong64-gnu/README.md
 new file mode 100644
 index 00000000..bc707ec2
@@ -104,10 +81,10 @@ index 00000000..e3e88e9d
 +  }
 +}
 diff --git a/packages/next-swc/package.json b/packages/next-swc/package.json
-index c76f5ec6..12141cc3 100644
+index 40c44c03..05d58cb7 100644
 --- a/packages/next-swc/package.json
 +++ b/packages/next-swc/package.json
-@@ -29,9 +29,11 @@
+@@ -28,9 +28,11 @@
        "additional": [
          "i686-pc-windows-msvc",
          "aarch64-unknown-linux-gnu",
@@ -120,10 +97,10 @@ index c76f5ec6..12141cc3 100644
          "wasm32-wasip1-threads"
        ]
 diff --git a/packages/next/src/build/swc/index.ts b/packages/next/src/build/swc/index.ts
-index 7e00ba74..81877a42 100644
+index 3fa7bbef..13c89a27 100644
 --- a/packages/next/src/build/swc/index.ts
 +++ b/packages/next/src/build/swc/index.ts
-@@ -69,6 +69,22 @@ function infoLog(...args: any[]) {
+@@ -71,6 +71,22 @@ function infoLog(...args: any[]) {
   * Based on napi-rs's target triples, returns triples that have corresponding next-swc binaries.
   */
  export function getSupportedArchTriples(): Record<string, any> {
@@ -146,7 +123,7 @@ index 7e00ba74..81877a42 100644
    const { darwin, win32, linux, freebsd, android } = platformArchTriples
  
    return {
-@@ -84,6 +100,7 @@ export function getSupportedArchTriples(): Record<string, any> {
+@@ -86,6 +102,7 @@ export function getSupportedArchTriples(): Record<string, any> {
        arm64: linux.arm64,
        // This target is being deprecated, however we keep it in `knownDefaultWasmFallbackTriples` for now
        arm: linux.arm,
@@ -155,7 +132,7 @@ index 7e00ba74..81877a42 100644
      // Below targets are being deprecated, however we keep it in `knownDefaultWasmFallbackTriples` for now
      freebsd: {
 diff --git a/packages/next/src/build/webpack/plugins/telemetry-plugin/telemetry-plugin.ts b/packages/next/src/build/webpack/plugins/telemetry-plugin/telemetry-plugin.ts
-index 95584eb2..2a4e12ed 100644
+index b467fe60..eedf1c20 100644
 --- a/packages/next/src/build/webpack/plugins/telemetry-plugin/telemetry-plugin.ts
 +++ b/packages/next/src/build/webpack/plugins/telemetry-plugin/telemetry-plugin.ts
 @@ -17,10 +17,12 @@ export type SWC_TARGET_TRIPLE =
@@ -247,10 +224,10 @@ index 0973817c..cf33a806 100644
        if (isMusl()) {
          try {
 diff --git a/scripts/install-native.mjs b/scripts/install-native.mjs
-index d1854530..adc00eb7 100644
+index c1ecd073..abc1337d 100644
 --- a/scripts/install-native.mjs
 +++ b/scripts/install-native.mjs
-@@ -50,6 +50,8 @@ import fsp from 'fs/promises'
+@@ -59,6 +59,8 @@ import { outdent } from 'outdent'
          '@next/swc-darwin-x64': nextVersion,
          '@next/swc-linux-arm64-gnu': nextVersion,
          '@next/swc-linux-arm64-musl': nextVersion,
@@ -278,10 +255,10 @@ index ed6c71df..35d649d3 100755
        }
        await fs.writeFile(
 diff --git a/turbopack/crates/turbopack-core/src/target.rs b/turbopack/crates/turbopack-core/src/target.rs
-index b70090fa..c5967ec6 100644
+index 7ce7bd73..1890be66 100644
 --- a/turbopack/crates/turbopack-core/src/target.rs
 +++ b/turbopack/crates/turbopack-core/src/target.rs
-@@ -99,6 +99,10 @@ impl CompileTarget {
+@@ -100,6 +100,10 @@ impl CompileTarget {
          {
              return Arch::Arm64;
          }
@@ -292,7 +269,7 @@ index b70090fa..c5967ec6 100644
          #[cfg(target_arch = "mips")]
          {
              return Arch::Mips;
-@@ -180,6 +184,7 @@ pub enum Arch {
+@@ -181,6 +185,7 @@ pub enum Arch {
      Arm,
      Arm64,
      Ia32,
@@ -300,7 +277,7 @@ index b70090fa..c5967ec6 100644
      Mips,
      Mipsel,
      Ppc,
-@@ -196,6 +201,7 @@ impl Arch {
+@@ -197,6 +202,7 @@ impl Arch {
              Self::Arm => "arm",
              Self::Arm64 => "arm64",
              Self::Ia32 => "ia32",
@@ -309,7 +286,7 @@ index b70090fa..c5967ec6 100644
              Self::Mipsel => "mipsel",
              Self::Ppc => "ppc",
 diff --git a/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph-explained.snapshot b/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph-explained.snapshot
-index 05b20218..7fe0c1af 100644
+index 1220f962..6d27e4aa 100644
 --- a/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph-explained.snapshot
 +++ b/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph-explained.snapshot
 @@ -47,6 +47,7 @@ knownUnixlikePackages (const after eval) = {
@@ -321,10 +298,10 @@ index 05b20218..7fe0c1af 100644
      "linux ppc64 LE": "esbuild-linux-ppc64le",
      "linux s390x BE": "esbuild-linux-s390x",
 diff --git a/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph.snapshot b/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph.snapshot
-index 29a55d0c..87222e70 100644
+index 892bfd99..80fa5cba 100644
 --- a/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph.snapshot
 +++ b/turbopack/crates/turbopack-ecmascript/tests/analyzer/graph/esbuild/graph.snapshot
-@@ -558,6 +558,22 @@
+@@ -554,6 +554,22 @@
                          ),
                      ),
                  ),
