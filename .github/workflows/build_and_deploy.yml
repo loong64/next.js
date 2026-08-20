@@ -136,7 +136,6 @@ jobs:
           echo "Deploy target is '${{ steps.deploy-target.outputs.value }}'"
           echo "Release environment is '${{ steps.deploy-target.outputs.release_environment }}'"
 
-
   build:
     if: ${{ needs.deploy-target.outputs.value != 'skipped' }}
     needs:
@@ -145,6 +144,11 @@ jobs:
     env:
       NEXT_TELEMETRY_DISABLED: 1
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 25
+          repository: vercel/next.js
+          ref: ${{ needs.deploy-target.outputs.version }}
       - name: Setup node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
@@ -340,7 +344,7 @@ jobs:
 
           - host: 'ubuntu-latest'
             target: 'aarch64-unknown-linux-musl'
-            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:stable-2023-09-17-alpine
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
             build: |
               # /build is bind-mounted from the host with a uid that differs from the
               # container's root user; mark it safe so vergen's `git rev-parse` works.
@@ -431,6 +435,10 @@ jobs:
           wget -qO - https://github.com/${{ github.repository }}/raw/refs/heads/main/patch_loong64.patch | patch -p1
           echo 'cty = { git = "https://github.com/loong64/cty", branch = "loong64-v0.2.2" }' >> Cargo.toml
           cargo update -p cty
+          if [ "${{ matrix.settings.target }}" = "loongarch64-unknown-linux-musl" ]; then
+            echo 'rustix = { git = "https://github.com/loong64/rustix", branch = "loong64-v1.0.7" }' >> Cargo.toml
+            cargo update -p rustix@1.0.7
+          fi
 
       - name: Setup node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0

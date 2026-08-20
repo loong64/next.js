@@ -1,3 +1,20 @@
+diff --git a/.cargo/config.toml b/.cargo/config.toml
+index 383dccad..003cb8cf 100644
+--- a/.cargo/config.toml
++++ b/.cargo/config.toml
+@@ -83,6 +83,12 @@ rustflags = [
+ [target.'cfg(all(target_os = "linux", target_env = "musl"))']
+ rustflags = ["-Ctarget-feature=-crt-static"]
+ 
++[target.aarch64-unknown-linux-musl]
++linker = "aarch64-linux-musl-gcc"
++
++[target.loongarch64-unknown-linux-musl]
++linker = "loongarch64-linux-musl-gcc"
++
+ # WASM: configure getrandom to use the wasm_js backend (Math.random / crypto).
+ [target.wasm32-unknown-unknown]
+ rustflags = [
 diff --git a/crates/next-napi-bindings/npm/linux-loong64-gnu/README.md b/crates/next-napi-bindings/npm/linux-loong64-gnu/README.md
 new file mode 100644
 index 00000000..bc707ec2
